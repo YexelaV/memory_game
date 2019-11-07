@@ -65,9 +65,9 @@ class NewGameState extends State<NewGame> {
     Colors.blue,
     Colors.deepPurple];
   static List <IconData> _icons = [
-    Icons.alarm,
     Icons.flight,
     Icons.airport_shuttle,
+    Icons.battery_full,
     Icons.beach_access,
     Icons.brightness_3,
     Icons.child_friendly,
@@ -81,12 +81,20 @@ class NewGameState extends State<NewGame> {
     Icons.star,
     Icons.vpn_key
   ];
+  static List <IconData> _usedIcons =[];
+
   List <Color> _playerColors=[];
   List <Color> _savedColors=[];
   List <Color> _displayedColors=[];
   List <Color> _borderColors = [];
+  
+  List <IconData> _playerIcons=[];
+  List <IconData> _savedIcons=[];
+  List <IconData> _displayedIcons = [];
+  
   int _level = 1;
-  int _iconsToRemember = 3;
+  int _itemsToRemember = 3;
+  int _iconsToUse = 2;
   int _colorsToUse = 3;
   int _lifes = 3;
   int _score = 0;
@@ -100,15 +108,15 @@ class NewGameState extends State<NewGame> {
 
   void initState() {
     super.initState();
-    for (int i=0; i<_iconsToRemember; i++) {
+    for (int i=0; i<_itemsToRemember; i++) {
       _playerColors.add(Colors.white70);
       _savedColors.add(Colors.transparent);
       _displayedColors.add(Colors.transparent);
+      _displayedIcons.add(Icons.brightness_1);
       _borderColors.add(Colors.transparent);
     }
   }
 
-  //int _currentButton = 1;
   Future _getHighScore() async {
     final prefs = await SharedPreferences.getInstance();
     _highScore = prefs.getInt('highscore') ?? 0;
@@ -127,16 +135,24 @@ class NewGameState extends State<NewGame> {
     int color = random.nextInt(_colorsToUse);
     int nextColor = random.nextInt(_colorsToUse);
 
-    for (int i=0; i<_iconsToRemember; i++)  {
+    int icon = random.nextInt(_iconsToUse);
+    int nextIcon = random.nextInt(_iconsToUse);
+
+    for (int i=0; i<_itemsToRemember; i++)  {
       await Future.delayed(Duration(milliseconds: delayBeforeShow));
-      while (nextColor == color) {nextColor = random.nextInt(_colorsToUse);}
+      while (nextColor == color) {nextColor = random.nextInt(_iconsToUse);}
+      while (nextIcon == icon) {nextIcon = random.nextInt(_iconsToUse);}
       setState(() {
         _savedColors[i] = _displayedColors[i] = _colors[color];
+        _displayedIcons[i] = _icons[icon];
       });
       color = nextColor;
+      icon = nextIcon;
     }
-    await Future.delayed(Duration(milliseconds: _iconsToRemember*delayToMemorize));
-    for (int i=0; i<_iconsToRemember; i++)  setState(() {_displayedColors[i] = Colors.transparent;});
+
+    await Future.delayed(Duration(milliseconds: _itemsToRemember*delayToMemorize));
+    for (int i=0; i<_itemsToRemember; i++)  setState(()
+    {_displayedColors[i] = Colors.transparent;});
     _borderColors[0]=Colors.black;
     _keyboardActive = true;
   }
@@ -155,7 +171,7 @@ class NewGameState extends State<NewGame> {
 
   Future _check() async {
     _keyboardActive = false;
-    for (int i = 0; i < _iconsToRemember; i++) {
+    for (int i = 0; i < _itemsToRemember; i++) {
       await Future.delayed(Duration(milliseconds: delayWhileChecking));
       setState(() {
         _displayedColors[i] = _savedColors[i];
@@ -167,31 +183,32 @@ class NewGameState extends State<NewGame> {
       });
     }
 
-    if (_matchedNumber==_iconsToRemember) {
+    if (_matchedNumber==_itemsToRemember) {
       //_showMessage(context, "Congratulations! You passed to the next level!");
       _matchedNumber = 0;
       await Future.delayed(Duration(milliseconds: delayBetweenlevels));
       setState((){
-        for (int i=0; i<_iconsToRemember; i++) {
+        for (int i=0; i<_itemsToRemember; i++) {
           _playerColors[i] = Colors.white70;
           _displayedColors[i] = Colors.transparent;
           _borderColors[i] = Colors.transparent;
         }
         if (_level%5==0) {
           _colorsToUse++;
-          _iconsToRemember = 2;
+          _itemsToRemember = 2;
           _displayedColors = [Colors.transparent,Colors.transparent];
           _playerColors = [Colors.white70, Colors.white70];
           _savedColors = [Colors.transparent, Colors.transparent];
         }
-        if (_colorsToUse>_colors.length) {_colorsToUse = 3; _iconsToRemember = 2;}
+        if (_colorsToUse>_colors.length) {_colorsToUse = 3; _itemsToRemember = 2;}
         _level++;
-        _iconsToRemember++;
+        _itemsToRemember++;
         _score+=10;
         _playerColors.add(Colors.white70);
         _savedColors.add(Colors.transparent);
         _displayedColors.add(Colors.transparent);
         _borderColors.add(Colors.transparent);
+        _displayedIcons.add(Icons.brightness_1);
       });
       _start();
     }
@@ -211,7 +228,7 @@ class NewGameState extends State<NewGame> {
       else {
         await Future.delayed(Duration(milliseconds: delayBetweenlevels));
         setState(() {
-          for (int i = 0; i < _iconsToRemember; i++) {
+          for (int i = 0; i < _itemsToRemember; i++) {
             _playerColors[i] = Colors.white70;
             _displayedColors[i] = Colors.transparent;
             _borderColors[i] = Colors.transparent;
@@ -317,12 +334,11 @@ class NewGameState extends State<NewGame> {
                       ]),
 
                       
-                      //Buttons to memorize
-                      //SizedBox(height: intervalBetweenButtons),
-                      Row(
+                      //Buttons to remember
+                      /*Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                          for (int i=0; i<_iconsToRemember; i++) Container(
+                          for (int i=0; i<_itemsToRemember; i++) Container(
                             decoration: BoxDecoration(border: Border.all(color:Colors.transparent, width: borderWidth)),
                             child: SizedBox(
                                 height: buttonHeight,
@@ -335,14 +351,13 @@ class NewGameState extends State<NewGame> {
                             )
                           ),
                           ]
-                      ),
-                      SizedBox(height: intervalBetweenButtons),
+                      ),*/
                       
                       //Buttons to enter answer
-                      Row(
+                      /*Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            for (int i=0;i<_iconsToRemember; i++) Container(
+                            for (int i=0;i<_itemsToRemember; i++) Container(
                               decoration: BoxDecoration(border: Border.all(color: _borderColors[i], width: borderWidth)),
                               child: SizedBox(
                                 height: buttonHeight,
@@ -355,11 +370,58 @@ class NewGameState extends State<NewGame> {
                             ),
                             )
                           ]
+                      ),*/
+
+                      //Buttons to memorize
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                          for (int i=0; i<_itemsToRemember; i++) Container(
+                            child: Padding(
+                                padding: EdgeInsets.fromLTRB (5.0, 5.0, 5.0, 5.0),
+                                child: Ink(
+                                    decoration: ShapeDecoration(
+                                        color: Colors.grey,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(15.0),
+                                            side: BorderSide(color: Colors.transparent, width:1))),
+                                        child: IconButton(
+                                          icon: Icon (_displayedIcons[i]),
+                                          iconSize: 30,
+                                          disabledColor: _displayedColors[i]
+                                    )
+                                ),
+                            )
+                          ),
+                          ]
                       ),
-                      //Button keyboard
-                       //SizedBox(height: intervalBetweenButtons),
-                          ButtonBar(
-                          alignment: MainAxisAlignment.center,
+
+                        //Buttons to enter answer
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              for (int i=0;i<_itemsToRemember; i++) Container(
+                                    child: Padding(
+                                    padding: EdgeInsets.fromLTRB (5.0, 5.0, 5.0, 15.0),
+                                    child: Ink(
+                                      decoration: ShapeDecoration(
+                                          color: Colors.grey,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(15.0),
+                                              side: BorderSide(color: _borderColors[i], width:2))),
+                                              child: IconButton(
+                                                icon: Icon (Icons.brightness_1),
+                                                iconSize: 30,
+                                                disabledColor: _playerColors[i]
+                                                  )
+                                                ),
+                                          )
+                              )
+                            ]
+                        ),
+                        //Button keyboard
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             for (int i=0;i<_colorsToUse;i++ ) Container (
                                 //decoration: BoxDecoration(color: Colors.white, border: Border.all(color:Colors.black, width:borderWidth)),
@@ -411,10 +473,16 @@ class NewGameState extends State<NewGame> {
                               ]
                             ),
                       //SizedBox(height: intervalBetweenButtons),
+                      Row (
+                        children: <Widget>[
+                        if (_showStart) SizedBox(height:intervalBetweenButtons)
+                        ]
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          if (_showStart) SizedBox(
+                          if (_showStart)
+                            SizedBox(
                               height: 50,
                               width: 100,
                               child:
@@ -433,7 +501,45 @@ class NewGameState extends State<NewGame> {
                                 highlightColor: Colors.blue,
                                 color: Colors.lightBlue,
                               )
-                          ),
+                          )
+                          else Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+
+                                  for (int i=0;i<_iconsToUse;i++ ) Container (
+                                      child: SizedBox(
+                                        height: keyboardButtonHeight,
+                                        width: keyboardButtonWidth,
+                                        child: Ink(
+                                          decoration: ShapeDecoration(
+                                            color: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(15.0),
+                                            side: BorderSide(color: Colors.transparent, width:1))),
+                                          child: IconButton(
+                                            icon: Icon (_icons[i]),
+                                            iconSize: 30,
+                                            disabledColor: Colors.black
+                                          )
+                                        ),
+                                      )
+                                    /*child: SizedBox(
+                                      height: keyboardButtonHeight,
+                                      width: keyboardButtonWidth,
+                                      child: FlatButton(
+                                        shape: RoundedRectangleBorder(
+                                        borderRadius: new BorderRadius.circular(15.0),
+                                        side: BorderSide(color: Colors.black)),
+                                        color: Colors.white,
+                                        child: CustomPaint(painter: DrawCircle(_colors[i],12.0)),
+                                          onPressed: () {
+                                            if (_keyboardActive) _onTap(i);
+                                          },
+                                      )
+                                    )*/
+                                  ),
+                                  ]
+                          )
                         ],
                       ),
                     ]

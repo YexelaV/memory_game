@@ -20,9 +20,9 @@ double borderWidth = 2;
 double intervalBetweenText = 10;
 double intervalBetweenButtons = 10;
 int delayBeforeShow = 400;
-int delayToMemorize = 500;
+int delayToMemorize = 1000;
 int delayBetweenlevels = 1600;
-int delayWhileChecking = 200;
+int delayWhileChecking = 100;
 
 
 

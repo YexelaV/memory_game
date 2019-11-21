@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'config.dart';
 import 'newgame.dart';
+import 'settings.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -9,6 +10,7 @@ void main() {
     home: MainScreen(),
     routes: {
       '/new': (BuildContext context) => NewGame(),
+      '/settings':  (BuildContext context) => Settings()
     }
   ));
 }
@@ -22,6 +24,7 @@ class MenuButton extends StatelessWidget{
 
   void _action (BuildContext context){
     if (_name=="New Game") Navigator.pushNamed(context, '/new');
+    if (_name=="Settings") Navigator.pushNamed(context, '/settings');
 }
 
   @override

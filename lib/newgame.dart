@@ -31,6 +31,9 @@ class NewGame extends StatefulWidget {
   createState()=> NewGameState();
 }
 
+
+enum gameMode {easy, hard}
+
 class NewGameState extends State<NewGame> {
 
   static List <Color> _colors = [
@@ -45,6 +48,7 @@ class NewGameState extends State<NewGame> {
   static List <IconData> _icons = [
     Icons.local_florist,
     Icons.beach_access,
+    Icons.favorite,
     Icons.pets,
     Icons.star,
     Icons.vpn_key,
@@ -79,7 +83,7 @@ class NewGameState extends State<NewGame> {
   int _iconsToUse = 3;
   int _colorsToUse = 3;
   int _lifes = 3;
-  bool _easyGameMode = true; //false for hard game mode
+  bool _easyGameMode; //false for hard game mode
   int _score = 0;
   int _highScore;
   int _matchedNumber = 0;
@@ -92,6 +96,7 @@ class NewGameState extends State<NewGame> {
 
   void initState() {
     super.initState();
+    _getGameMode();
     for (int i=0; i<_itemsToRemember; i++) {
       _playerColors.add(Colors.white70);
       _playerIcons.add(Icons.brightness_1);
@@ -117,6 +122,11 @@ class NewGameState extends State<NewGame> {
     prefs.setInt('highscore', score);
   }
 
+   Future _getGameMode() async {
+     final prefs = await SharedPreferences.getInstance();
+     bool _boolGameMode = prefs.getBool('gameMode') ?? false;
+     _easyGameMode = _boolGameMode;
+   }
 
   Future _start() async{
     _currentButton=0;
@@ -141,8 +151,9 @@ class NewGameState extends State<NewGame> {
       color = nextColor;
       icon = nextIcon;
     }
-
-    await Future.delayed(Duration(milliseconds: _itemsToRemember*delayToMemorize));
+    int _delay = delayToMemorize;
+    if (!_easyGameMode) _delay=delayToMemorize*2;
+    await Future.delayed(Duration(milliseconds: _itemsToRemember*_delay));
     for (int i=0; i<_itemsToRemember; i++)  setState(() {
       _displayedColors[i] = Colors.transparent;
       _displayedIconColor[i] = Colors.transparent;
@@ -193,41 +204,46 @@ class NewGameState extends State<NewGame> {
       });
     }
 
-    if (_matchedNumber>0) {
+    if (_matchedNumber==_itemsToRemember) {
       _matchedNumber = 0;
       await Future.delayed(Duration(milliseconds: delayBetweenlevels));
-      setState((){
-        for (int i=0; i<_itemsToRemember; i++) {
-          _playerColors[i] = Colors.white70;
-          _displayedColors[i] = Colors.transparent;
-          _displayedIconColor[i]=Colors.transparent;
-          _borderColors[i] = Colors.transparent;
-          _playerIconColor[i]=Colors.transparent;
-        }
-        if (_level%5==0) {
-          _colorsToUse++;
-          _itemsToRemember = 3;
-         // _displayedColors = [Colors.transparent,Colors.transparent];
-         // _playerColors = [Colors.white70, Colors.white70];
-         // _savedColors = [Colors.transparent, Colors.transparent];
-        }
-        //if (_colorsToUse>_colors.length) {_colorsToUse = 3; _itemsToRemember = 2;}
-        else {
-          _itemsToRemember++;
-          _score += 10;
-          _playerColors.add(Colors.white70);
-          _playerIcons.add(Icons.brightness_1);
-          _savedColors.add(Colors.transparent);
-          _savedIcons.add(Icons.brightness_1);
-          _displayedColors.add(Colors.transparent);
-          _borderColors.add(Colors.transparent);
-          _displayedIcons.add(Icons.brightness_1);
-          _displayedIconColor.add(Colors.transparent);
-          _playerIconColor.add(Colors.transparent);
-        }
-        _level++;
-      });
-      _start();
+      if (_level == 25) {
+        _showMessage(context, "CONGRATULATIONS! YOU PASSED ALL LEVELS!");
+      }
+      else {
+        setState(() {
+          for (int i = 0; i < _itemsToRemember; i++) {
+            _playerColors[i] = Colors.white70;
+            _displayedColors[i] = Colors.transparent;
+            _displayedIconColor[i] = Colors.transparent;
+            _borderColors[i] = Colors.transparent;
+            _playerIconColor[i] = Colors.transparent;
+          }
+          if (_level % 5 == 0) {
+            _colorsToUse++;
+            _itemsToRemember = 3;
+            // _displayedColors = [Colors.transparent,Colors.transparent];
+            // _playerColors = [Colors.white70, Colors.white70];
+            // _savedColors = [Colors.transparent, Colors.transparent];
+          }
+          //if (_colorsToUse>_colors.length) {_colorsToUse = 3; _itemsToRemember = 2;}
+          else {
+            _itemsToRemember++;
+            _score += 10;
+            _playerColors.add(Colors.white70);
+            _playerIcons.add(Icons.brightness_1);
+            _savedColors.add(Colors.transparent);
+            _savedIcons.add(Icons.brightness_1);
+            _displayedColors.add(Colors.transparent);
+            _borderColors.add(Colors.transparent);
+            _displayedIcons.add(Icons.brightness_1);
+            _displayedIconColor.add(Colors.transparent);
+            _playerIconColor.add(Colors.transparent);
+          }
+          _level++;
+        });
+        _start();
+      }
     }
     else {
       _lifes--;
@@ -283,6 +299,28 @@ class NewGameState extends State<NewGame> {
     );
   }
 
+  Future<bool> _onWillPop() {
+    return showDialog(
+      context: context,
+      builder: (context) =>
+      new AlertDialog(
+        title: new Text('Back to Main Menu'),
+        content: new Text('All game progress will be lost. Are you sure?'),
+        actions: <Widget>[
+          new FlatButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: new Text('No'),
+          ),
+          new FlatButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: new Text('Yes'),
+          ),
+        ],
+      ),
+    )
+        ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -291,7 +329,7 @@ class NewGameState extends State<NewGame> {
     ]);
       _getHighScore();
     return WillPopScope(
-        onWillPop: () async => false,
+        onWillPop: (_onWillPop) ,
       child: Stack(
           children: [
             Container(
@@ -303,56 +341,72 @@ class NewGameState extends State<NewGame> {
                 ),
                 child: Scaffold (
                     backgroundColor: Colors.transparent,
+                  appBar: PreferredSize(
+                  preferredSize: Size.fromHeight(40.0),
+                  child: AppBar(
+                    centerTitle: true,
+                    title: Text(
+                      'LEVEL $_level',
+                      style: TextStyle(fontSize: 20, color: Colors.black, decoration: TextDecoration.none)
+                    ),
+                    backgroundColor: Colors.transparent,
+                    )
+                    ),
                     body: Center(
                     child: Column(
                     children: <Widget>[
-                      SizedBox(height: paddingFromTop),
-                      Container(
-                          child: Text(
-                              'LEVEL $_level', style: TextStyle(fontSize: fontSize,
-                              color: Colors.black,
-                              decoration: TextDecoration.none))
-                      ),
-                      SizedBox(height: intervalBetweenText),
+                      //SizedBox(height: paddingFromTop),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children:<Widget>[
-                          Container(width: MediaQuery.of(context).size.width*0.05),
                           Container(
-                            width: MediaQuery.of(context).size.width*0.45,
+                            width: MediaQuery.of(context).size.width * 0.25,
+                          child: FlatButton(
+                              disabledColor: Colors.white70,
                             child: Text(
-                                'YOUR SCORE: $_score', style: TextStyle(fontSize: fontSize,
+                                'SCORE: $_score', style: TextStyle(fontSize: 15,
                                 color: Colors.black,
                                 decoration: TextDecoration.none),
                                 textAlign: TextAlign.left
                             )
-                        ),
+                        )
+                          ),
                           Container(
-                              width: MediaQuery.of(context).size.width*0.45,
+                          width: MediaQuery.of(context).size.width * 0.25,
+                          child: Row(
+                          children:<Widget>[
+                            FlatButton(
+                              disabledColor: Colors.white70,
                               child: Text(
-                                  'HIGH SCORE: $_highScore', style: TextStyle(fontSize: fontSize,
+                                  'LIFES', style: TextStyle(fontSize: 15,
+                                  color: Colors.black,
+                                  decoration: TextDecoration.none),
+                                  textAlign: TextAlign.left
+                              )
+                          ),
+                            for (int i=0; i<_lifes; i++) Icon(Icons.favorite, color:Colors.pink)
+                          ]
+                          )
+                          ),
+                          Container(
+                          width: MediaQuery.of(context).size.width * 0.25,
+                          child: FlatButton(
+                              disabledColor: Colors.white70,
+                              child: Text(
+                                  'HIGH SCORE: $_highScore', style: TextStyle(fontSize: 15,
                                   color: Colors.black,
                                   decoration: TextDecoration.none),
                                   textAlign: TextAlign.right
                               )
+                          )
                           ),
-                          Container(width: MediaQuery.of(context).size.width*0.05),
                           //MyText (_level, "LEVEL",0.2)
                         ]
                       ),
                       Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children:<Widget>[
-                            Container(width: MediaQuery.of(context).size.width*0.05),
-                            Container(
-                                width: MediaQuery.of(context).size.width*0.45,
-                                child: Text(
-                                    'LIFES: $_lifes', style: TextStyle(fontSize: fontSize,
-                                    color: Colors.black,
-                                    decoration: TextDecoration.none),
-                                    textAlign: TextAlign.left
-                                )
-                            ),
                       ]),
-
                       //Buttons to memorize
                       Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -505,7 +559,6 @@ class NewGameState extends State<NewGame> {
                             if (!_easyGameMode) Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-
                                   for (int i=0;i<_iconsToUse;i++ ) Container (
                                       child: SizedBox(
                                         height: keyboardButtonHeight,

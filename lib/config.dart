@@ -10,19 +10,19 @@ Color menuButtonHighlightColor = Colors.blue;
 double intervalBetweenMenuButtons = 15;
 
 //NEW GAME
-double paddingFromTop = 25;
-double fontSize = 20;
+double paddingFromTop = 20;
+double fontSize = 15;
 double buttonHeight = 40;
-double buttonWidth = 50;
+double buttonWidth = 40;
 double keyboardButtonHeight=50;
 double keyboardButtonWidth=50;
 double borderWidth = 2;
 double intervalBetweenText = 10;
 double intervalBetweenButtons = 10;
 int delayBeforeShow = 400;
-int delayToMemorize = 1000;
+int delayToMemorize = 500;
 int delayBetweenlevels = 1600;
-int delayWhileChecking = 100;
+int delayWhileChecking = 50;
 
 
 

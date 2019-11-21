@@ -47,6 +47,7 @@ flutter:
   assets:
     - backgrounds/bg.jpg
     - bg_newgame.jpg
+    - bg_settings.jpeg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

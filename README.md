@@ -1,4 +1,4 @@
-# memory_game
-Simple memory game
-
-Watch buttons and try to remember their colors and icons
+# MeGa - simple memory game
+1. Watch the sequence of colored buttons with icons
+2 .Remember the sequence
+3. Try to reproduce

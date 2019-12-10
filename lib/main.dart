@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'config.dart';
 import 'newgame.dart';
 import 'settings.dart';
+import 'package:audioplayers/audio_cache.dart';
+
 
 void main() {
   runApp(MaterialApp(
@@ -27,6 +29,8 @@ class MenuButton extends StatelessWidget{
     if (_name=="Settings") Navigator.pushNamed(context, '/settings');
 }
 
+  static AudioCache player = AudioCache();
+
   @override
   Widget build (BuildContext context){
     return   SizedBox(
@@ -38,8 +42,13 @@ class MenuButton extends StatelessWidget{
                 side: BorderSide(color: menuButtonHighlightColor)
             ),
           child: Text(
-            _name, style: TextStyle(fontSize: menuButtonFontSize)),
-            onPressed: () {_action(context);},
+            _name,
+            textScaleFactor: 1.5,
+            //style: TextStyle(fontSize: menuButtonFontSize)
+            ),
+            onPressed: () {
+              player.play('sound/menu.wav');
+              _action(context);},
         highlightColor: menuButtonHighlightColor,
         color: menuButtonColor
     )
@@ -47,8 +56,12 @@ class MenuButton extends StatelessWidget{
   }
 }
 
+class MainScreen extends StatefulWidget {
+  createState()=>MainScreenState();
+}
 
-class MainScreen extends StatelessWidget {
+
+class MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +73,7 @@ class MainScreen extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('backgrounds/bg.jpg'),
+                  image: AssetImage('assets/backgrounds/bg.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),

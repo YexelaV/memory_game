@@ -17,7 +17,7 @@ class SettingsState extends State<Settings>{
   Future _getGameMode() async {
     final prefs = await SharedPreferences.getInstance();
     bool _boolGameMode = prefs.getBool('gameMode') ?? false;
-    if (_boolGameMode) _gameMode = gameMode.easy;
+    if (!_boolGameMode) _gameMode = gameMode.easy;
     else _gameMode = gameMode.hard;
     setState((){});
   }
@@ -45,7 +45,7 @@ class SettingsState extends State<Settings>{
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('backgrounds/bg_settings.jpeg'),
+                  image: AssetImage('assets/backgrounds/bg_settings.jpeg'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -89,8 +89,7 @@ class SettingsState extends State<Settings>{
                                   value: gameMode.easy,
                                   groupValue: _gameMode,
                                   onChanged: (gameMode value) {
-                                    _putGameMode(_gameMode);
-                                    setState(() { _gameMode = value; });
+                                    _putGameMode(value);
                                   },
                                 ),
                               ),
@@ -116,8 +115,7 @@ class SettingsState extends State<Settings>{
                                   value: gameMode.hard,
                                   groupValue: _gameMode,
                                   onChanged: (gameMode value) {
-                                    _putGameMode(_gameMode);
-                                    setState(() { _gameMode = value; });
+                                    _putGameMode(value);
                                   },
                                 ),
                               ),

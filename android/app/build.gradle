@@ -42,8 +42,8 @@ android {
         applicationId "example.com.memory_game"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 3
-        versionName flutterVersionName
+        versionCode 5
+        versionName "0.3.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

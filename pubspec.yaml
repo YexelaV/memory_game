@@ -20,9 +20,8 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^0.5.4
-  url_launcher: ^3.0.1
-  http: ^0.12.0
   rflutter_alert: ^1.0.2
+  audioplayers: ^0.13.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -45,9 +44,10 @@ flutter:
   uses-material-design: true
 
   assets:
-    - backgrounds/bg.jpg
-    - bg_newgame.jpg
-    - bg_settings.jpeg
+    - assets/backgrounds/bg.jpg
+    - assets/backgrounds/bg_newgame.jpg
+    - assets/backgrounds/bg_settings.jpeg
+    - assets/sound/menu.wav
 
   # To add assets to your application, add an assets section, like this:
   # assets:

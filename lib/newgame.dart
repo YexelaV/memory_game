@@ -21,7 +21,7 @@ class MyText extends StatelessWidget{
         child: Text(
             '$_text $_param', style: TextStyle(fontSize: fontSize,
             color: Colors.black,
-            decoration: TextDecoration.none))
+            decoration: TextDecoration.none), textScaleFactor: 1.0)
     );
   }
 }
@@ -124,8 +124,8 @@ class NewGameState extends State<NewGame> {
 
    Future _getGameMode() async {
      final prefs = await SharedPreferences.getInstance();
-     bool _boolGameMode = prefs.getBool('gameMode') ?? false;
-     _easyGameMode = _boolGameMode;
+     bool _boolGameMode = prefs.getBool('gameMode') ?? true;
+     _easyGameMode = !_boolGameMode;
    }
 
   Future _start() async{
@@ -283,7 +283,7 @@ class NewGameState extends State<NewGame> {
         onWillPop: () async => false,
             child: AlertDialog(
               title: Text(message),
-              content: Text("Your score: $_score"),
+              content: Text("Your score: $_score", textScaleFactor: 1.0),
                 actions: <Widget>[
                 FlatButton(
                     onPressed: () {
@@ -291,7 +291,7 @@ class NewGameState extends State<NewGame> {
                       Navigator.pop(context);
                       _score=0;
                 },
-                    child: Text('OK')
+                    child: Text('OK', textScaleFactor: 1.0)
                 ),
                 ]
             )
@@ -304,16 +304,16 @@ class NewGameState extends State<NewGame> {
       context: context,
       builder: (context) =>
       new AlertDialog(
-        title: new Text('Back to Main Menu'),
-        content: new Text('All game progress will be lost. Are you sure?'),
+        title: new Text('Back to Main Menu',textScaleFactor: 1.0),
+        content: new Text('All game progress will be lost. Are you sure?',textScaleFactor: 1.0),
         actions: <Widget>[
           new FlatButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: new Text('No'),
+            child: new Text('No',textScaleFactor: 1.0),
           ),
           new FlatButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: new Text('Yes'),
+            child: new Text('Yes',textScaleFactor: 1.0),
           ),
         ],
       ),
@@ -335,7 +335,7 @@ class NewGameState extends State<NewGame> {
             Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('backgrounds/bg_newgame.jpg'),
+                    image: AssetImage('assets/backgrounds/bg_newgame.jpg'),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -347,6 +347,7 @@ class NewGameState extends State<NewGame> {
                     centerTitle: true,
                     title: Text(
                       'LEVEL $_level',
+                        textScaleFactor: 1.0,
                       style: TextStyle(fontSize: 20, color: Colors.black, decoration: TextDecoration.none)
                     ),
                     backgroundColor: Colors.transparent,
@@ -360,19 +361,20 @@ class NewGameState extends State<NewGame> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children:<Widget>[
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.25,
+                            width: MediaQuery.of(context).size.width * 0.3,
                           child: FlatButton(
                               disabledColor: Colors.white70,
                             child: Text(
                                 'SCORE: $_score', style: TextStyle(fontSize: 15,
                                 color: Colors.black,
                                 decoration: TextDecoration.none),
+                                textScaleFactor: 1.0,
                                 textAlign: TextAlign.left
                             )
                         )
                           ),
                           Container(
-                          width: MediaQuery.of(context).size.width * 0.25,
+                          width: MediaQuery.of(context).size.width * 0.3,
                           child: Row(
                           children:<Widget>[
                             FlatButton(
@@ -381,6 +383,7 @@ class NewGameState extends State<NewGame> {
                                   'LIFES', style: TextStyle(fontSize: 15,
                                   color: Colors.black,
                                   decoration: TextDecoration.none),
+                                  textScaleFactor: 1.0,
                                   textAlign: TextAlign.left
                               )
                           ),
@@ -389,13 +392,14 @@ class NewGameState extends State<NewGame> {
                           )
                           ),
                           Container(
-                          width: MediaQuery.of(context).size.width * 0.25,
+                          width: MediaQuery.of(context).size.width * 0.3,
                           child: FlatButton(
                               disabledColor: Colors.white70,
                               child: Text(
                                   'HIGH SCORE: $_highScore', style: TextStyle(fontSize: 15,
                                   color: Colors.black,
                                   decoration: TextDecoration.none),
+                                  textScaleFactor: 1.0,
                                   textAlign: TextAlign.right
                               )
                           )
@@ -413,8 +417,10 @@ class NewGameState extends State<NewGame> {
                           children: <Widget>[
                           for (int i=0; i<_itemsToRemember; i++) Container(
                             child: Padding(
-                                padding: EdgeInsets.fromLTRB (5.0, 5.0, 5.0, 5.0),
+                                padding: EdgeInsets.fromLTRB (5.0, 1.5, 5.0, 0.0),
                                 child: Ink(
+                                    width: 45,
+                                    height: 45,
                                     decoration: ShapeDecoration(
                                         color: _displayedColors[i],
                                         shape: RoundedRectangleBorder(
@@ -422,8 +428,8 @@ class NewGameState extends State<NewGame> {
                                             side: BorderSide(color: Colors.transparent, width:2))),
                                         child: IconButton(
                                           icon: Icon (_displayedIcons[i]),
-                                          iconSize: 30,
-                                          disabledColor: _displayedIconColor[i]
+                                          iconSize: 25,
+                                          disabledColor: _displayedIconColor[i],
                                     )
                                 ),
                             )
@@ -437,8 +443,10 @@ class NewGameState extends State<NewGame> {
                             children: <Widget>[
                               for (int i=0;i<_itemsToRemember; i++) Container(
                                     child: Padding(
-                                    padding: EdgeInsets.fromLTRB (5.0, 5.0, 5.0, 15.0),
+                                    padding: EdgeInsets.fromLTRB (5.0, 1.5, 5.0, 5.0),
                                     child: Ink(
+                                      width: 45,
+                                      height: 45,
                                       decoration: ShapeDecoration(
                                           color: _playerColors[i],
                                           shape: RoundedRectangleBorder(
@@ -446,7 +454,7 @@ class NewGameState extends State<NewGame> {
                                               side: BorderSide(color: _borderColors[i], width:2))),
                                               child: IconButton(
                                                 icon: Icon (_playerIcons[i]),
-                                                iconSize: 30,
+                                                iconSize: 25,
                                                 disabledColor: _playerIconColor[i]
                                                   )
                                                 ),
@@ -473,25 +481,14 @@ class NewGameState extends State<NewGame> {
                                     child: IconButton(
                                       icon: Icon (Icons.brightness_1),
                                       color: _colors[i],
-                                      iconSize: 30,
-                                      onPressed: () {if (_keyboardActive) _onTapColor(i);},
+                                      iconSize: 25,
+                                      onPressed: () {if (_keyboardActive)
+                                        _onTapColor(i);},
                                     )
                                 )
-                                /*child: FlatButton(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15.0),
-                                      side: BorderSide(color: Colors.black)),
-                                  color: Colors.white,
-                                  child: CustomPaint(painter: DrawCircle(_colors[i],15.0)),
-                                  onPressed: () {
-                                    if (_keyboardActive) _onTapColor(i);
-                                    },
-
-                                )*/
-                                  )
+                                )
                                 ),
                             Container(
-                              //decoration: BoxDecoration(color: Colors.white, border: Border.all(color:Colors.black, width:borderWidth)),
                               child: SizedBox(
                                 height: keyboardButtonHeight,
                                 width: keyboardButtonWidth,
@@ -503,7 +500,7 @@ class NewGameState extends State<NewGame> {
                                           side: BorderSide(color: Colors.black))),
                                     child: IconButton(
                                       icon: Icon (Icons.arrow_back),
-                                      iconSize: 30,
+                                      iconSize: 25,
                                       onPressed: () {
                                         if (_keyboardActive){
                                         if (_currentButton>0) {
@@ -546,6 +543,7 @@ class NewGameState extends State<NewGame> {
                                 ),
                                 child: Text(
                                     'START',
+                                    textScaleFactor: 1.0,
                                     style: TextStyle(fontSize: 20)),
                                 onPressed: () {
                                   _showStart = false;
@@ -571,7 +569,7 @@ class NewGameState extends State<NewGame> {
                                             side: BorderSide(color: Colors.black, width:1))),
                                           child: IconButton(
                                             icon: Icon (_icons[i]),
-                                            iconSize: 30,
+                                            iconSize: 25,
                                             disabledColor: Colors.black,
                                             onPressed:() {if (_keyboardActive) _onTapIcon(i);}
                                           )
